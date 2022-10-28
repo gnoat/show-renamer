@@ -1,6 +1,6 @@
 mod renamer;
 
 fn main() {
-    let renamer = renamer::Renamer::extract();
-    renamer.rename_files();
+    let show_renamer = renamer::Renamer::extract();
+    show_renamer.rename_files();
 }

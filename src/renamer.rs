@@ -41,7 +41,7 @@ impl Renamer {
         }
     }
 
-    pub fn walk_over_filetype(&self) -> Vec<String> {
+    pub fn map_episodes(&self) -> Vec<(String, String)> {
         let mut file_vec: Vec<String> = Vec::new();
         for file in WalkDir::new(&self.path).into_iter()
             .filter_map(|file| file.ok())
@@ -54,10 +54,15 @@ impl Renamer {
                               .unwrap()
                               .to_string());
             }
-        file_vec
+        let name_map: Vec<(String, String)> = file_vec
+            .iter()
+            .map(|f| (f.to_string(), self.normalize_episodes(f)))
+            .collect();
+
+        name_map
     }
 
-    pub fn extract_ep_info<T: AsRef<str>>(&self, file_name: T) -> String {
+    pub fn normalize_episodes<T: AsRef<str>>(&self, file_name: T) -> String {
         let ep_re: Regex = Regex::new(r"([sS]\d+[eE]\d+)").unwrap();
         let ep_first = ep_re.captures(file_name.as_ref()).unwrap();
         let ep_info = ep_first.get(1).unwrap().as_str().to_string();
@@ -66,7 +71,7 @@ impl Renamer {
             .split(".")
             .collect::<Vec<&str>>()
             .split_last()
-            .unwrap()
+           .unwrap()
             .0;
         let full_path: Vec<String> = file_name
             .as_ref()
@@ -78,16 +83,12 @@ impl Renamer {
             None => format!("{}/{}.{}", partial_path, ep_info, ext),
             Some(f) => format!("{}/{}-{}.{}", partial_path, f, ep_info, ext),
         };
+
         new_path
     }
 
     pub fn rename_files(&self) {
-        let name_map: Vec<(String, String)> = self
-            .walk_over_filetype()
-            .iter()
-            .map(|f| (f.to_string(), self.extract_ep_info(f)))
-            .collect();
-        for episode in name_map.iter() {
+        for episode in self.map_episodes().iter() {
             println!("Renaming: {} -> {}", episode.0, episode.1);
             rename(&episode.0, &episode.1).unwrap();
         }

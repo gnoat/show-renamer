@@ -15,7 +15,7 @@ impl Renamer {
         let app = Command::new("renamer")
             .version("0.1.0")
             .author("shalst")
-            .about("Rename movie files")
+            .about("Rename TV show files")
             .arg(Arg::new("path").short('p').long("path").required(false))
             .arg(
                 Arg::new("extension")
@@ -65,7 +65,7 @@ impl Renamer {
     pub fn normalize_episodes<T: AsRef<str>>(&self, file_name: T) -> String {
         let ep_re: Regex = Regex::new(r"([sS]\d+[eE]\d+)").unwrap();
         let ep_first = ep_re.captures(file_name.as_ref()).unwrap();
-        let ep_info = ep_first.get(1).unwrap().as_str().to_string();
+        let ep_info = ep_first.get(1).unwrap().as_str();
         let ext: &str = &file_name
             .as_ref()
             .split(".")
